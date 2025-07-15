@@ -10,10 +10,12 @@
     <!---->
     <script>
       var adClient="ca-pub-6259309995888735";
+      var secAdClient="secAdClient";
       
       // 获取当前广告客户ID的方法
       function getAdClient() {
-          return adClient;
+          return adClient+"#"+secAdClient;
+
       }
       
       // 获取当前广告位ID的方法
@@ -23,24 +25,63 @@
       
     </script>
     <!--
-    <script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6259309995888735" crossorigin="anonymous">-->
-    <!--
-      <script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+adClient crossorigin="anonymous">-->
-      <script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client="+adClient crossorigin="anonymous">
+    <script async data-adbreak-test="on" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6259309995888735" crossorigin="anonymous"> </script>-->
 
-    </script>
+
+      <script>
+         // 获取当前域名并构建adId.txt路径
+         const domain = window.location.origin;
+         console.log("当前域名 "+domain);
+         const adIdPath = `${domain}/adId.txt`;
+         console.log("广告id路径 "+adIdPath);
+
+         // 从adId.txt获取adClient
+         fetch(adIdPath)
+           .then(response => response.text())
+           .then(data => {
+             //adClient = data.trim();
+             //console.log("获取的广告id "+adClient);
+             // 处理多行内容
+             const lines = data.split('\n').filter(line => line.trim() !== '');
+             console.log("adId.txt中的所有字符串:", lines);
+             
+             // 使用第一行作为adClient
+             adClient = lines[0].trim();
+             console.log("使用的广告id: "+adClient);
+             secAdClient = lines[1].trim();
+             console.log("使用的mimi广告id: "+secAdClient);
+             
+             // 获取到adClient后再加载广告脚本
+             const script = document.createElement('script');
+             script.async = true;
+             script.setAttribute('data-adbreak-test', 'on');
+             script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adClient}`;
+             script.crossOrigin = 'anonymous';
+             script.onload = initAds; // 脚本加载完成后初始化
+             document.head.appendChild(script);
+           });
+       </script>
+    
+
+   
 
     <script>
-    window.adsbygoogle = window.adsbygoogle || []; 
-    var adBreak = adConfig = function(o) {adsbygoogle.push(o);} 
-    adConfig({preloadAdBreaks: 'on'});
+    // 在广告脚本加载完成后初始化
+    const initAds = () => {
+      window.adsbygoogle = window.adsbygoogle || [];
+      window.adBreak = adConfig = function(o) {adsbygoogle.push(o);};
+      adConfig({preloadAdBreaks: 'on'});
+      console.log("adBreak "+adBreak);
+      console.log("广告初始化完成");
+
+    };
     </script>
 
      <script type="text/javascript">
 
       var myUnityInstance;
       function playinter() {
-        
+        console.log("playinter adBreak "+adBreak);
           adBreak({
         type: 'next',  // ad shows at start of next level
         name: 'restart-game',
@@ -50,7 +91,7 @@
       }
 
       function playreward() {
-        
+        console.log("playreward adBreak "+adBreak);
 
            adBreak({
         type: 'reward',  // rewarded ad
@@ -121,11 +162,11 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/AntFlow.loader.js";
+      var loaderUrl = buildUrl + "/antflow.loader.js";
       var config = {
-        dataUrl: buildUrl + "/AntFlow.data",
-        frameworkUrl: buildUrl + "/AntFlow.framework.js",
-        codeUrl: buildUrl + "/AntFlow.wasm",
+        dataUrl: buildUrl + "/antflow.data",
+        frameworkUrl: buildUrl + "/antflow.framework.js",
+        codeUrl: buildUrl + "/antflow.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "rongzong",
         productName: "Ant Draw",
